@@ -28,6 +28,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -43,6 +45,11 @@ public class MainActivity extends AppCompatActivity {
 
     private DeviceScanner mScanner;
 
+    private int position;
+
+    private Date currentTime;
+
+    private ArrayList<Data> output; // TODO
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
@@ -50,6 +57,11 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        // label for position
+        position = 0;
+
 
         //check to determine whether BLE is supported on the device.
         BLEChecking();
@@ -93,10 +105,14 @@ public class MainActivity extends AppCompatActivity {
         Log.d("TAG", "onStart");
 
     }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     protected void onStop() {
 
         super.onStop();
+        stopScan();
         Log.d("TAG", "onStop");
     }
 
@@ -130,8 +146,6 @@ public class MainActivity extends AppCompatActivity {
                 //TODO: add actions
             }
         });
-
-
     }
 
     public void initBtn(){
@@ -141,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
             @Override
             public void onClick(View v) {
-
+                position += 1;
                 devices.clear();
                 mMap.clear();
                 mScanner.start();
@@ -152,6 +166,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void addDevice(BluetoothDevice device, int new_rssi) {
+//        currentTime = Calendar.getInstance().getTime();
+//        System.out.println("currtime is: " + String.valueOf(currentTime));
 
         String address = device.getAddress();
 
@@ -167,5 +183,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         deviceListViewAdapter.notifyDataSetChanged();
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+    //stop scanning
+    public void stopScan(){
+        mScanner.stop();
     }
 }

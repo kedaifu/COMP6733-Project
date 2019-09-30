@@ -8,10 +8,15 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class DeviceScanner{
 
@@ -20,14 +25,19 @@ public class DeviceScanner{
     private MainActivity mMA;
 
     private BluetoothAdapter bluetoothAdapter;
-    private  boolean mScanning;
+
     private Handler handler;
     // Stops scanning after 10 seconds.
-    private static final long SCAN_PERIOD = 10000;
+    private static final long SCAN_PERIOD = 5000;
 
     private int signalStrength;
 
     private int test = 0;
+
+
+
+
+    private Date currentTime;// = Calendar.getInstance().getTime();
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     //how long scanner, signal threshold, don't pick the random
@@ -35,8 +45,6 @@ public class DeviceScanner{
         mMA = mainActivity;
         handler = new Handler();
         this.signalStrength = signalStrength;
-
-
 
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) mMA.getSystemService(Context.BLUETOOTH_SERVICE);
@@ -55,31 +63,33 @@ public class DeviceScanner{
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void scanLeDevice(final boolean enable) {
 
+
+
         if (enable) {
             // Stops scanning after a pre-defined scan period.
             handler.postDelayed(new Runnable() {
 
                 @Override
                 public void run() {
-                    mScanning = false;
+                    //stop scanning after SCAN_PERIOD
                     bluetoothAdapter.stopLeScan(mLeScanCallback);
+                    mMA.stopScan();
+//
                 }
             }, SCAN_PERIOD);
 
-            mScanning = true;
             bluetoothAdapter.startLeScan(mLeScanCallback);
 
         } else {
-            mScanning = false;
+
             bluetoothAdapter.stopLeScan(mLeScanCallback);
+
         }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void start() {
-
         scanLeDevice(true);
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -91,14 +101,18 @@ public class DeviceScanner{
     // Device scan callback.
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
             new BluetoothAdapter.LeScanCallback() {
+//
                 @Override
                 public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+                    currentTime = Calendar.getInstance().getTime();
+                    System.out.println("curr: "+ currentTime );
                     final int new_rssi = rssi;
                     if (rssi > signalStrength) {
 
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
+
                                 mMA.addDevice(device, new_rssi);
                             }
                         });
@@ -107,7 +121,5 @@ public class DeviceScanner{
 
                 }
             };
-
-
 
 }

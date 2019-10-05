@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:padding="25dp">
+
+    <EditText
+        android:id="@+id/x_coordinate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="x_coordinate" />
+
+    <EditText
+        android:id="@+id/y_coordinate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/x_coordinate"
+        android:layout_marginTop="93dp"
+        android:hint="y_coordinate" />
+
+    <EditText
+        android:id="@+id/z_coordinate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/y_coordinate"
+        android:layout_marginTop="95dp"
+        android:hint="z_coordinate" />
+
+
+</RelativeLayout>

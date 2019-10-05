@@ -163,8 +163,14 @@ public class MainActivity extends AppCompatActivity {
                 mMap.clear();
                 mScanner.start();
                 listView.setAdapter(deviceListViewAdapter);
+                openDialog();
             }
         });
+    }
+
+    private void openDialog() {
+        LocationDialog informationDialog = new LocationDialog();
+        informationDialog.show(getSupportFragmentManager(),"location");
     }
 
 
@@ -194,7 +200,6 @@ public class MainActivity extends AppCompatActivity {
 
     // https://developer.android.com/reference/android/support/v4/content/FileProvider
     public void export(View view){
-
 
         //generate data
         StringBuilder data = new StringBuilder();

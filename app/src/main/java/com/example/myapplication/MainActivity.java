@@ -38,7 +38,10 @@ public class MainActivity extends AppCompatActivity implements LocationDialog.Lo
 
     private Date currentTime;
 
-    private Data output; // TODO
+    private Data output;
+
+    private ArrayList<Data> outputCSV;
+
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements LocationDialog.Lo
         devices = new ArrayList<>();
         mMap = new HashMap<>();
         output = new Data();
+        outputCSV = new ArrayList<>();
         deviceListViewAdapter = new DeviceListAdapter(this, R.layout.item,devices);
 
         listView =(ListView) findViewById(R.id.ble_list);
@@ -184,7 +188,12 @@ public class MainActivity extends AppCompatActivity implements LocationDialog.Lo
         //TODO: Instead of printing the result directly,
         //      SEND IT TO GOOGLE CLOUD using HTTP requsts
         System.out.println(output.toString());
-
+        Data tmp = new Data(output.getLabelOut(),
+                            output.getOrientationOut(),
+                            output.getTimelineOut(),
+                            output.getMAC(),
+                            output.getRSSI());
+        outputCSV.add(tmp);
         deviceListViewAdapter.notifyDataSetChanged();
     }
 
@@ -200,9 +209,15 @@ public class MainActivity extends AppCompatActivity implements LocationDialog.Lo
 
         //generate data
         StringBuilder data = new StringBuilder();
-        data.append("Time,Distance");
-        for(int i = 0; i<5; i++){
-            data.append("\n"+String.valueOf(i)+","+String.valueOf(i*i));
+        data.append("Label,orientation,timeline,MAC,RSSI");
+
+        for(int i = 0; i<outputCSV.size(); i++){
+            Data cur = outputCSV.get(i);
+            data.append("\n"+cur.getLabelOut()+","
+                        +cur.getOrientationOut() + ","
+                        +cur.getTimelineOut() + ","
+                        +cur.getMAC() + ","
+                        +cur.getRSSI());
         }
 
         try{

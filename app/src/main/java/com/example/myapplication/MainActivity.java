@@ -2,42 +2,29 @@ package com.example.myapplication;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothManager;
-import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.UUID;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LocationDialog.LocationDialogListener {
 
     private ListView listView;
 
@@ -45,25 +32,19 @@ public class MainActivity extends AppCompatActivity {
     private HashMap<String, Device> mMap;
     private DeviceListAdapter deviceListViewAdapter;
 
-    private Button searchBtn;
+    private Button searchBtn,inputBtn;
 
     private DeviceScanner mScanner;
 
-    private int position;
-
     private Date currentTime;
 
-    private ArrayList<Data> output; // TODO
-
+    private Data output; // TODO
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // label for position
-        position = 0;
 
 
         //check to determine whether BLE is supported on the device.
@@ -135,9 +116,10 @@ public class MainActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void initListViewAdapter(){
-        mScanner = new DeviceScanner(this, -75);
+        mScanner = new DeviceScanner(this, -100);
         devices = new ArrayList<>();
         mMap = new HashMap<>();
+        output = new Data();
         deviceListViewAdapter = new DeviceListAdapter(this, R.layout.item,devices);
 
         listView =(ListView) findViewById(R.id.ble_list);
@@ -154,15 +136,24 @@ public class MainActivity extends AppCompatActivity {
     public void initBtn(){
         searchBtn = (Button) findViewById(R.id.search_btn);
 
+        inputBtn = (Button) findViewById(R.id.input_btn);
+
         searchBtn.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
             @Override
             public void onClick(View v) {
-                position += 1;
                 devices.clear();
                 mMap.clear();
                 mScanner.start();
                 listView.setAdapter(deviceListViewAdapter);
+
+            }
+        });
+
+        inputBtn.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+            @Override
+            public void onClick(View v) {
                 openDialog();
             }
         });
@@ -175,8 +166,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void addDevice(BluetoothDevice device, int new_rssi) {
+        //data  = new Data(int labelOut, int orientationOut, int timelineOut, String MAC, int RSSI);
         String address = device.getAddress();
-
         if (!mMap.containsKey(address)) {
             Device btleDevice = new Device(device);
             btleDevice.setRSSI(new_rssi);
@@ -187,6 +178,12 @@ public class MainActivity extends AppCompatActivity {
         else {
             mMap.get(address).setRSSI(new_rssi);
         }
+        output.setMAC(address);
+        output.setRSSI(new_rssi);
+
+        //TODO: Instead of printing the result directly,
+        //      SEND IT TO GOOGLE CLOUD using HTTP requsts
+        System.out.println(output.toString());
 
         deviceListViewAdapter.notifyDataSetChanged();
     }
@@ -231,5 +228,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    @Override
+    public void applyTexts(int l, int o, int t) {
+        output.setLabelOut(l);
+        output.setOrientationOut(o);
+        output.setTimelineOut(t);
     }
 }

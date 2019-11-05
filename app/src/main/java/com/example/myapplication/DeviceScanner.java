@@ -28,7 +28,7 @@ public class DeviceScanner{
 
     private Handler handler;
     // Stops scanning after 10 seconds.
-    private static final long SCAN_PERIOD = 5000;
+    private static final long SCAN_PERIOD = 2000;
 
     private int signalStrength;
 

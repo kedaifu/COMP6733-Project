@@ -4,26 +4,26 @@
     android:padding="25dp">
 
     <EditText
-        android:id="@+id/x_coordinate"
+        android:id="@+id/location_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="x_coordinate" />
+        android:hint="label" />
 
     <EditText
-        android:id="@+id/y_coordinate"
+        android:id="@+id/phone_orientation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/x_coordinate"
+        android:layout_alignTop="@+id/location_label"
         android:layout_marginTop="93dp"
-        android:hint="y_coordinate" />
+        android:hint="phone_orientation" />
 
     <EditText
-        android:id="@+id/z_coordinate"
+        android:id="@+id/timeline"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/y_coordinate"
+        android:layout_alignTop="@+id/phone_orientation"
         android:layout_marginTop="95dp"
-        android:hint="z_coordinate" />
+        android:hint="timeline" />
 
 
 </RelativeLayout>

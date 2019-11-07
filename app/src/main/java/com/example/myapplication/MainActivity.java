@@ -18,11 +18,39 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+//import com.squareup.okhttp.Call;
+//import com.squareup.okhttp.Callback;
+//import com.squareup.okhttp.MediaType;
+//import com.squareup.okhttp.OkHttpClient;
+//import com.squareup.okhttp.Request;
+//import com.squareup.okhttp.RequestBody;
+//import com.squareup.okhttp.Response;
+
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+//import com.squareup;
 
 public class MainActivity extends AppCompatActivity implements LocationDialog.LocationDialogListener {
 
@@ -42,6 +70,14 @@ public class MainActivity extends AppCompatActivity implements LocationDialog.Lo
 
     private ArrayList<Data> outputCSV;
 
+    private OkHttpClient okClient;
+    //private static String url ="https://1qmy2blu58.execute-api.ap-southeast-2.amazonaws.com/update6733";
+    //OkHttpClient client = new OkHttpClient();
+    //private OkHttpClient client = new OkHttpClient();;
+    //URLConnection
+    private int dataID;
+    private String key;
+    //HttpClient httpclient = new DefaultHttpClient();
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +85,11 @@ public class MainActivity extends AppCompatActivity implements LocationDialog.Lo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        okClient = new OkHttpClient();
 
+        currentTime = new Date();
+
+        key = currentTime.toString();
         //check to determine whether BLE is supported on the device.
         BLEChecking();
 
@@ -193,7 +233,56 @@ public class MainActivity extends AppCompatActivity implements LocationDialog.Lo
                             output.getTimelineOut(),
                             output.getMAC(),
                             output.getRSSI());
+
         outputCSV.add(tmp);
+
+        String tmpKey = key + dataID;
+
+        MediaType mediaType = MediaType.parse("text/plain");
+        RequestBody body = RequestBody.create(mediaType, "{\"comp6733\":\""+tmpKey
+                                +"\",\"Label\":\""+output.getLabelOut()
+                                +"\",\"MAC\":\""+output.getMAC()
+                                +"\",\"Orientation\":\""+output.getOrientationOut()
+                                +"\",\"RSSI\":\""+output.getRSSI()
+                                +"\",\"timeline\":\""+output.getTimelineOut()+"\"}");
+        Request request = new Request.Builder()
+                .url("https://1qmy2blu58.execute-api.ap-southeast-2.amazonaws.com/update6733/comp6733")
+                .post(body)
+                .addHeader("Content-Type", "text/plain")
+                .addHeader("User-Agent", "PostmanRuntime/7.19.0")
+                .addHeader("Accept", "*/*")
+                .addHeader("Cache-Control", "no-cache")
+                .addHeader("Postman-Token", "b85f4aa3-0b88-43ee-b3dc-8436b8b27ae6,94517545-3289-4e9b-89fb-a1724e08c024")
+                .addHeader("Host", "1qmy2blu58.execute-api.ap-southeast-2.amazonaws.com")
+                .addHeader("Accept-Encoding", "gzip, deflate")
+                .addHeader("Content-Length", "47")
+                .addHeader("Connection", "keep-alive")
+                .addHeader("cache-control", "no-cache")
+                .build();
+
+        Call call = okClient.newCall(request);
+        call.enqueue(new Callback() {
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                String err = e.getMessage().toString();
+                //System.out.println("yoyoyo" + err);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String rtn = response.body().string();
+                final String code = String.valueOf(response.code());
+                //System.out.println("kkkkkk" + rtn + ":::::"+ code);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                    }
+
+               });
+            }
+            });
+        dataID +=1;
         deviceListViewAdapter.notifyDataSetChanged();
     }
 
@@ -251,4 +340,6 @@ public class MainActivity extends AppCompatActivity implements LocationDialog.Lo
         output.setOrientationOut(o);
         output.setTimelineOut(t);
     }
+
+
 }
